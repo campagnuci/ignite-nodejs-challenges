@@ -10,7 +10,7 @@
 
 ## 💻 Projeto
 
-ignite-template-trabalhando-com-middlewares
+ignite-template-corrigindo-o-codigo
 
 ## 📝 Licença
 
