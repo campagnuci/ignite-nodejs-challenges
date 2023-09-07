@@ -1,16 +1,8 @@
-import { User } from "../model/User";
+import { IFindUserWithGamesDTO, IFindUserByFullNameDTO } from '../dtos';
+import { User } from '../entities/User';
 
-interface ICreateUserDTO {
-  name: string;
-  email: string;
+export interface IUsersRepository {
+  findUserWithGamesById(data: IFindUserWithGamesDTO): Promise<User>;
+  findAllUsersOrderedByFirstName(): Promise<User[]>;
+  findUserByFullName(data: IFindUserByFullNameDTO): Promise<User[] | undefined>;
 }
-
-interface IUsersRepository {
-  create({ name, email }: ICreateUserDTO): User;
-  findById(id: string): User | undefined;
-  findByEmail(email: string): User | undefined;
-  turnAdmin(user: User): User;
-  list(): User[];
-}
-
-export { IUsersRepository, ICreateUserDTO };

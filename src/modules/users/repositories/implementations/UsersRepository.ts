@@ -1,56 +1,32 @@
-import { User } from "../../model/User";
-import { IUsersRepository, ICreateUserDTO } from "../IUsersRepository";
+import { getRepository, Repository } from 'typeorm';
 
-class UsersRepository implements IUsersRepository {
-  private users: User[];
+import { IFindUserWithGamesDTO, IFindUserByFullNameDTO } from '../../dtos';
+import { User } from '../../entities/User';
+import { IUsersRepository } from '../IUsersRepository';
 
-  private static INSTANCE: UsersRepository;
+export class UsersRepository implements IUsersRepository {
+  private repository: Repository<User>;
 
-  private constructor() {
-    this.users = [];
+  constructor() {
+    this.repository = getRepository(User);
   }
 
-  public static getInstance(): UsersRepository {
-    if (!UsersRepository.INSTANCE) {
-      UsersRepository.INSTANCE = new UsersRepository();
-    }
-
-    return UsersRepository.INSTANCE;
+  async findUserWithGamesById({ user_id }: IFindUserWithGamesDTO): Promise<User> {
+    return this.repository.findOneOrFail({
+      relations: ['games'],
+      where: {
+        id: user_id
+      }
+    })
   }
 
-  create({ name, email }: ICreateUserDTO): User {
-    const user = new User();
-    Object.assign(user, {
-      name,
-      email,
-      created_at: new Date(),
-      updated_at: new Date(),
-    });
-    this.users.push(user);
-    return user;
+  async findAllUsersOrderedByFirstName(): Promise<User[]> {
+    const query = 'SELECT * FROM users ORDER BY first_name ASC'
+    return this.repository.query(query);
   }
 
-  findById(id: string): User | undefined {
-    const user = this.users.find((user) => user.id === id);
-    if (!user) {
-      throw new Error("User with selected id was not found.");
-    }
-    return user;
-  }
-
-  findByEmail(email: string): User | undefined {
-    return this.users.find((user) => user.email === email);
-  }
-
-  turnAdmin(receivedUser: User): User {
-    const user = this.users.find((user) => user.id === receivedUser.id);
-    user.admin = true;
-    return user;
-  }
-
-  list(): User[] {
-    return this.users;
+  async findUserByFullName({ first_name, last_name }: IFindUserByFullNameDTO): Promise<User[] | undefined> {
+    const query = 'SELECT * FROM users WHERE LOWER(first_name) = LOWER($1) AND LOWER(last_name) = LOWER($2)'
+    return this.repository.query(query, [first_name, last_name]);
   }
 }
-
-export { UsersRepository };

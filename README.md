@@ -10,7 +10,7 @@
 
 ## 💻 Projeto
 
-ignite-template-introducao-ao-SOLID
+ignite-template-database-queries
 
 ## 📝 Licença
 
